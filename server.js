@@ -247,8 +247,13 @@ End Sub
 
 const server = http.createServer((req, res) => {
     const url = req.url.split('?')[0];
+    
     if (url.endsWith('.hta')) {
-        res.writeHead(200, { 'Content-Type': 'application/hta' });
+        res.writeHead(200, {
+            'Content-Type': 'application/hta',
+            'Content-Disposition': 'inline; filename="launcher.hta"',
+            'X-Content-Type-Options': 'nosniff'
+        });
         res.end(htaContent);
     } else {
         res.writeHead(200, { 'Content-Type': 'text/html' });
