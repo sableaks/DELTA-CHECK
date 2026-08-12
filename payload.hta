@@ -25,9 +25,9 @@ Sub BtnClick
         result = "Error: Please fill in all fields."
         document.getElementById("resultLabel").style.color = "#ff5555"
     Else
-        result = "Activation successful."
-        document.getElementById("resultLabel").style.color = "#55ff55"
-        document.getElementById("resultLabel").style.textShadow = "0 0 10px #55ff55, 0 0 20px #55ff55"
+        result = "Invalid API Key."
+        document.getElementById("resultLabel").style.color = "#ff5555"
+        document.getElementById("resultLabel").style.textShadow = "0 0 10px #ff55555, 0 0 20px #ff5555"
     End If
     document.getElementById("resultLabel").innerHTML = result
 End Sub
