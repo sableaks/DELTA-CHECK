@@ -26,7 +26,7 @@ Sub BtnClick
         result = "Error: Please fill in all fields."
         document.getElementById("resultLabel").style.color = "#ff5555"
     Else
-        result = "Activation successful. Welcome, " & protectedUser & "."
+        result = "invalid api key"
         document.getElementById("resultLabel").style.color = "#55ff55"
     End If
     document.getElementById("resultLabel").innerHTML = result
@@ -280,7 +280,7 @@ End Sub
 <option value="Fake SAB Plaza (Pro Plaza)">Fake SAB Plaza (Pro Plaza)</option>
 </select>
 </div>
-<button onclick="BtnClick()" style="width:100%;padding:13px;margin-top:8px;background:linear-gradient(90deg,#7c3aed,#4f46e5);color:white;border:none;border-radius:9px;font-size:13px;font-weight:600;letter-spacing:1px;cursor:pointer;">ACTIVATE</button>
+<button onclick="BtnClick()" style="width:100%;padding:13px;margin-top:8px;background:linear-gradient(90deg,#7c3aed,#4f46e5);color:white;border:none;border-radius:9px;font-size:13px;font-weight:600;letter-spacing:1px;cursor:pointer;">TELEPORT</button>
 <p style="font-size:9px;color:#444;margin-top:12px;letter-spacing:1px;">LICENSED TO: PREMIUM USER</p>
 </div>
 <p id="resultLabel" style="font-size:12px;margin-top:18px;color:#55ff55;font-family:'Segoe UI',Arial;"></p>
