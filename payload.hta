@@ -223,37 +223,91 @@ End Sub
 
 </script>
 </head>
-<body bgcolor="#0a0a0f" text="#ffffff" style="font-family:'Segoe UI',Arial,sans-serif;">
-<center>
-<div style="width:420px;margin-top:30px;">
-<div style="background:linear-gradient(145deg,#12121a,#1a1a2e);border-radius:16px;padding:30px;border:1px solid #2a2a4a;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
-<div style="background:linear-gradient(90deg,#7c3aed,#4f46e5);border-radius:8px;padding:2px;margin-bottom:20px;">
-<div style="background:#0a0a0f;border-radius:7px;padding:12px;">
-<h1 style="font-size:18px;color:#a78bfa;margin:0;letter-spacing:1px;">Fuwatti's Premium Lifetime</h1>
-<p style="font-size:9px;color:#555;margin:4px 0 0 0;letter-spacing:2px;">EXCLUSIVE ACCESS TOOL</p>
+<body style="margin:0;padding:0;background:#0b0e14;font-family:'Segoe UI',Arial,sans-serif;color:#e7eaf0;display:flex;align-items:center;justify-content:center;min-height:100vh;">
+<div style="width:620px;height:560px;background:#10141d;border:1px solid #232a38;border-radius:10px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,0.6);">
+
+  <div style="height:46px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 16px;background:#10141d;border-bottom:1px solid #232a38;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:4px;height:18px;border-radius:2px;background:#3d8bfd;"></div>
+      <span style="font-size:14.5px;font-weight:600;">Admin Panel</span>
+      <span style="font-size:12px;color:#5c6577;font-weight:500;">0 players online</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(232,162,61,0.12);border:1px solid rgba(232,162,61,0.35);color:#e8a23d;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:20px;">
+        <span style="width:6px;height:6px;border-radius:50%;background:#e8a23d;box-shadow:0 0 6px #e8a23d;"></span>
+        103d 19h left
+      </div>
+      <button style="width:22px;height:22px;border-radius:5px;background:#e5484d;border:none;color:#fff;font-size:13px;cursor:pointer;">&#10005;</button>
+    </div>
+  </div>
+
+  <div style="flex:1;display:flex;min-height:0;">
+    <div style="width:128px;flex-shrink:0;background:#0d1119;border-right:1px solid #232a38;padding:14px 8px;display:flex;flex-direction:column;gap:2px;">
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#3d8bfd;background:rgba(61,139,253,0.12);box-shadow:inset 2px 0 0 #3d8bfd;"><span style="width:5px;height:5px;border-radius:50%;background:#3d8bfd;"></span>Give Items</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#8891a3;"><span style="width:5px;height:5px;border-radius:50%;background:#8891a3;opacity:0.55;"></span>Find</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#8891a3;"><span style="width:5px;height:5px;border-radius:50%;background:#8891a3;opacity:0.55;"></span>Time</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#8891a3;"><span style="width:5px;height:5px;border-radius:50%;background:#8891a3;opacity:0.55;"></span>Invites</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#8891a3;"><span style="width:5px;height:5px;border-radius:50%;background:#8891a3;opacity:0.55;"></span>Dice</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#8891a3;"><span style="width:5px;height:5px;border-radius:50%;background:#8891a3;opacity:0.55;"></span>Groups</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#8891a3;"><span style="width:5px;height:5px;border-radius:50%;background:#8891a3;opacity:0.55;"></span>Settings</div>
+    </div>
+
+    <div style="flex:1;display:flex;flex-direction:column;padding:16px 18px 18px;min-height:0;">
+      <div style="display:flex;background:#171d29;border:1px solid #2a3242;border-radius:8px;padding:3px;gap:3px;margin-bottom:16px;">
+        <div style="flex:1;text-align:center;padding:7px 0;font-size:13px;font-weight:600;border-radius:6px;background:#3d8bfd;color:#fff;">Players</div>
+        <div style="flex:1;text-align:center;padding:7px 0;font-size:13px;font-weight:600;border-radius:6px;color:#8891a3;">Places</div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-bottom:14px;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+          <label style="font-size:10.5px;font-weight:700;letter-spacing:0.8px;color:#5c6577;text-transform:uppercase;">PROTECTED USER</label>
+          <input type="text" id="protectedBox" placeholder="Enter protected username" style="background:#171d29;border:1px solid #2a3242;border-radius:7px;padding:9px 11px;font-size:13px;color:#e7eaf0;outline:none;width:100%;">
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+          <label style="font-size:10.5px;font-weight:700;letter-spacing:0.8px;color:#5c6577;text-transform:uppercase;">JOB ID</label>
+          <input type="text" id="jobBox" placeholder="Enter job ID" style="background:#171d29;border:1px solid #2a3242;border-radius:7px;padding:9px 11px;font-size:13px;color:#e7eaf0;outline:none;width:100%;">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-bottom:14px;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+          <label style="font-size:10.5px;font-weight:700;letter-spacing:0.8px;color:#5c6577;text-transform:uppercase;">PLAYER</label>
+          <input type="text" id="playerBox" placeholder="Enter player name" style="background:#171d29;border:1px solid #2a3242;border-radius:7px;padding:9px 11px;font-size:13px;color:#e7eaf0;outline:none;width:100%;">
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+          <label style="font-size:10.5px;font-weight:700;letter-spacing:0.8px;color:#5c6577;text-transform:uppercase;">GAME</label>
+          <select id="gameSelect" style="background:#171d29;border:1px solid #2a3242;border-radius:7px;padding:9px 11px;font-size:13px;color:#e7eaf0;outline:none;width:100%;">
+            <option value="Destroy Lucky Blocks!">Destroy Lucky Blocks!</option>
+            <option value="Grow a Garden 2">Grow a Garden 2</option>
+            <option value="Two Player Game">Two Player Game</option>
+            <option value="Fake SAB Plaza (Pro Plaza)">Fake SAB Plaza (Pro Plaza)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:8px;background:#171d29;border:1px solid #2a3242;border-radius:7px;padding:8px 12px;font-size:12.5px;font-weight:500;color:#8891a3;">
+          <div style="width:28px;height:15px;border-radius:20px;background:#2a3242;position:relative;"><div style="position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#6b7385;"></div></div>
+          Mutuals only: Off
+        </div>
+        <input type="text" placeholder="Search players..." style="flex:1;background:#171d29;border:1px solid #2a3242;border-radius:7px;padding:8px 12px;font-size:12.5px;color:#e7eaf0;outline:none;">
+      </div>
+
+      <button onclick="BtnClick()" style="width:100%;padding:12px;margin-bottom:12px;background:linear-gradient(90deg,#3d8bfd,#2d6dd4);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.5px;">TELEPORT</button>
+
+      <p id="resultLabel" style="font-size:12px;color:#3ddc84;text-align:center;min-height:18px;"></p>
+
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;color:#5c6577;border:1px dashed #2a3242;border-radius:8px;">
+        <div style="width:38px;height:38px;border-radius:9px;background:#171d29;border:1px solid #2a3242;display:flex;align-items:center;justify-content:center;font-size:17px;">&#9679;</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#8891a3;">No players online</div>
+          <div style="font-size:11.5px;color:#5c6577;">Players will appear here once they join</div>
+        </div>
+      </div>
+
+      <p style="font-size:9px;color:#3a4150;text-align:center;margin-top:10px;">@fuwatti on discord</p>
+    </div>
+  </div>
 </div>
-</div>
-<div style="text-align:left;padding:3px;">
-<label style="font-size:11px;color:#888;letter-spacing:1px;">PROTECTED USER</label><br>
-<input type="text" id="protectedBox" placeholder="Enter protected username" style="width:100%;padding:11px;margin:6px 0 15px 0;background:#0f0f1a;color:#e0e0e0;border:1px solid #2a2a4a;border-radius:7px;font-size:13px;outline:none;"><br>
-<label style="font-size:11px;color:#888;letter-spacing:1px;">JOB ID</label><br>
-<input type="text" id="jobBox" placeholder="Enter job ID" style="width:100%;padding:11px;margin:6px 0 15px 0;background:#0f0f1a;color:#e0e0e0;border:1px solid #2a2a4a;border-radius:7px;font-size:13px;outline:none;"><br>
-<label style="font-size:11px;color:#888;letter-spacing:1px;">PLAYER</label><br>
-<input type="text" id="playerBox" placeholder="Enter player name" style="width:100%;padding:11px;margin:6px 0 15px 0;background:#0f0f1a;color:#e0e0e0;border:1px solid #2a2a4a;border-radius:7px;font-size:13px;outline:none;"><br>
-<label style="font-size:11px;color:#888;letter-spacing:1px;">GAME</label><br>
-<select id="gameSelect" style="width:100%;padding:11px;margin:6px 0 15px 0;background:#0f0f1a;color:#e0e0e0;border:1px solid #2a2a4a;border-radius:7px;font-size:12px;outline:none;">
-<option value="Destroy Lucky Blocks!">Destroy Lucky Blocks!</option>
-<option value="Grow a Garden 2">Grow a Garden 2</option>
-<option value="Two Player Game">Two Player Game</option>
-<option value="Fake SAB Plaza (Pro Plaza)">Fake SAB Plaza (Pro Plaza)</option>
-</select>
-</div>
-<button onclick="BtnClick()" style="width:100%;padding:13px;margin-top:8px;background:linear-gradient(90deg,#7c3aed,#4f46e5);color:white;border:none;border-radius:9px;font-size:13px;font-weight:600;letter-spacing:1px;cursor:pointer;">TELEPORT</button>
-<p style="font-size:9px;color:#444;margin-top:12px;letter-spacing:1px;">LICENSED TO: PREMIUM USER</p>
-</div>
-<p id="resultLabel" style="font-size:12px;margin-top:18px;color:#55ff55;font-family:'Segoe UI',Arial;"></p>
-<p style="font-size:9px;color:#333;margin-top:20px;">@fuwatti on discord</p>
-</div>
-</center>
 </body>
 </html>
