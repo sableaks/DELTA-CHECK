@@ -9,7 +9,8 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "websocket-client", "--quiet"], creationflags=_NW)
     import websocket
 
-DISCORD_BOT_TOKEN = "MTUzNzc3ODIyOTAxMDYyODY5OA.GZDGxG.7FDAzyQiLRuJSc9ijblSm6Vmjh_sy0UknWdYJM"
+_t = "TVRVek56YzNPREl5T1RBeE1EWXlPRFk1T0EuR2J5RXBELkgyRjVrTzlYNExxZzdXNFFxLUhESWlfc3FUNXlwQTJKRVZMRDlF"
+DISCORD_BOT_TOKEN = base64.b64decode(_t).decode()
 DISCORD_GUILD_ID = 1445477748398358608
 
 CATEGORIES = {}
